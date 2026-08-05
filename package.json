@@ -67,10 +67,8 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.13.3",
-    "@types/node-notifier": "^8.0.5",
     "@types/vscode": "^1.125.0",
     "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0",
     "eslint": "^10.5.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
@@ -78,9 +76,5 @@
   "overrides": {
     "diff": "^8.0.4",
     "serialize-javascript": "^7.0.6"
-  },
-  "dependencies": {
-    "node-notifier": "^10.0.1",
-    "node-pty": "^1.1.0"
   }
 }
