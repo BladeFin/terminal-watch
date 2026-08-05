@@ -99,6 +99,9 @@ export function activate(context: vscode.ExtensionContext) {
     const cleanData = data.replace(ANSI_REGEX, "");
     state.buffer = (state.buffer + cleanData).slice(-1000);
 
+    console.log("BUFFER: ", state.buffer);
+    console.log("CONTAINS: ", state.buffer.includes("End Session"));
+
     const matchedRegex = triggers.find((regex) => {
       regex.lastIndex = 0;
       return regex.test(state.buffer);
@@ -161,35 +164,38 @@ export function activate(context: vscode.ExtensionContext) {
   // node-pty (see loadBundledPty below). Gives raw, continuous output for
   // any shell, including cmd.exe, which shell integration can't see at all.
   function loadBundledPty(): PtyModule | undefined {
-    // VS Code ships its own node-pty, already compiled for this exact
-    // install's Electron/OS/arch, for its own integrated terminal. Free
-    // ride if it's there -- no build tools needed by anyone running this
-    // extension. Unsupported internal layout though, so it can break
-    // across VS Code versions -- callers should treat undefined as normal
-    // and fall back to the shell-integration path.
-    try {
-      const requireFunc =
-        typeof __webpack_require__ === "function"
-          ? __non_webpack_require__
-          : require;
-      const bundled = requireFunc(
-        require("path").join(
-          vscode.env.appRoot,
-          "node_modules.asar",
-          "node-pty",
-        ),
-      );
-      console.log(
-        "[terminal-watch] loaded node-pty from VS Code's own node_modules.asar",
-      );
-      return bundled;
-    } catch (err) {
-      console.log(
-        "[terminal-watch] VS Code's bundled node-pty unavailable:",
-        err,
-      );
-      return undefined;
+    const requireFunc =
+      typeof __webpack_require__ === "function"
+        ? __non_webpack_require__
+        : require;
+
+    const path = require("path");
+
+    // Array of potential paths.
+    // 1. Local Desktop VS Code (.asar archive)
+    // 2. Remote/Container VS Code Server (unpacked directory)
+    const searchPaths = [
+      path.join(vscode.env.appRoot, "node_modules.asar", "node-pty"),
+      path.join(vscode.env.appRoot, "node_modules", "node-pty"),
+    ];
+
+    for (const ptyPath of searchPaths) {
+      try {
+        const bundled = requireFunc(ptyPath);
+        console.log(
+          `[terminal-watch] loaded node-pty from VS Code internals: ${ptyPath}`,
+        );
+        return bundled;
+      } catch (err) {
+        // Silently fail and continue to the next path in the array
+      }
     }
+
+    // If the loop completes without returning, none of the paths worked.
+    console.log(
+      "[terminal-watch] VS Code's bundled node-pty unavailable in any expected location.",
+    );
+    return undefined;
   }
 
   function createPtyWatchedTerminal(path: string, pty: PtyModule) {
