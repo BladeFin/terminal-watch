@@ -133,4 +133,4 @@ Suggestions, bug reports, and feature requests are welcome!
 
 ## 📄 License
 
-[MIT License](LICENSE)
+License: MIT
