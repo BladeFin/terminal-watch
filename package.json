@@ -1,0 +1,85 @@
+{
+  "name": "terminal-watch",
+  "displayName": "Terminal Watch",
+  "publisher": "bladefin",
+  "description": "Triggers native notifications when terminal output matches specific text patterns.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "enabledApiProposals": [
+    "terminalDataWriteEvent"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Terminal Watch",
+      "properties": {
+        "terminalWatch.notificationMode": {
+          "type": "string",
+          "enum": [
+            "Desktop",
+            "VS Code",
+            "Both"
+          ],
+          "default": "Both"
+        },
+        "terminalWatch.triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "End Session",
+            "hell.o"
+          ],
+          "description": "Regular expressions that trigger a notification when detected in the terminal."
+        },
+        "terminalWatch.cooldownSeconds": {
+          "type": "number",
+          "default": 5,
+          "description": "Minimum seconds between notifications."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "terminal-watch.createWatchedTerminal",
+        "title": "Terminal Watch: Create Watched Terminal",
+        "icon": "$(terminal)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "@types/node-notifier": "^8.0.5",
+    "@types/vscode": "^1.125.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0",
+    "eslint": "^10.5.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  },
+  "dependencies": {
+    "node-notifier": "^10.0.1"
+  }
+}
