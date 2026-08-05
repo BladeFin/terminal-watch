@@ -13,9 +13,6 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "enabledApiProposals": [
-    "terminalDataWriteEvent"
-  ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
@@ -45,6 +42,12 @@
           "type": "number",
           "default": 5,
           "description": "Minimum seconds between notifications."
+        },
+        "terminalWatch.shellPath": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Custom path to the shell executable (leave blank to auto-detect OS default)."
         }
       }
     },
@@ -67,6 +70,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.13.3",
+    "@types/node-notifier": "^8.0.5",
     "@types/vscode": "^1.125.0",
     "@vscode/test-cli": "^0.0.15",
     "eslint": "^10.5.0",
@@ -76,5 +80,11 @@
   "overrides": {
     "diff": "^8.0.4",
     "serialize-javascript": "^7.0.6"
-  }
+  },
+  "dependencies": {
+    "node-notifier": "^10.0.1"
+  },
+  "extensionKind": [
+    "workspace"
+  ]
 }

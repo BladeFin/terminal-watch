@@ -1,57 +1,39 @@
-import { execFile } from "child_process";
+import * as vscode from "vscode";
 
-export function desktopNotify(title: string, message: string) {
-  if (process.platform === "win32") {
-    windowsNotify(title, message);
+// Safe CommonJS require for node-notifier
+function getNotifier() {
+  try {
+    const nn = require("node-notifier");
+    return nn.default || nn;
+  } catch {
+    return undefined;
   }
 }
 
-function windowsNotify(title: string, message: string) {
-  // Use a known registered AppUserModelID (PowerShell's default AUMID)
-  const appId =
-    "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe";
+// Handler registered on BOTH UI (Host) and Workspace (Container)
+export function registerNotificationHandler(context: vscode.ExtensionContext) {
+  const disposable = vscode.commands.registerCommand(
+    "terminal-watch.showHostNotification",
+    (title: string, message: string) => {
+      const notifier = getNotifier();
 
-  const script = `
-$ProgressPreference = 'SilentlyContinue'
-
-[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
-[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] > $null
-
-$xml = @"
-<toast>
-  <visual>
-    <binding template="ToastGeneric">
-      <text>${title.replace(/"/g, '""')}</text>
-      <text>${message.replace(/"/g, '""')}</text>
-    </binding>
-  </visual>
-  <audio src="ms-winsoundevent:Notification.Default"/>
-</toast>
-"@
-
-$doc = New-Object Windows.Data.Xml.Dom.XmlDocument
-$doc.LoadXml($xml)
-$toast = [Windows.UI.Notifications.ToastNotification]::new($doc)
-$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("${appId}")
-$notifier.Show($toast)
-`;
-
-  // Encode to UTF-16LE Base64 to prevent CLI parsing/newline errors
-  const encodedScript = Buffer.from(script, "utf16le").toString("base64");
-
-  execFile(
-    "powershell.exe",
-    [
-      "-NoProfile",
-      "-ExecutionPolicy",
-      "Bypass",
-      "-EncodedCommand",
-      encodedScript,
-    ],
-    (error, stdout, stderr) => {
-      if (error || stderr) {
-        console.error("Notification Error:", error || stderr);
+      // If running on local host, node-notifier hits native Windows/macOS toasts
+      if (notifier) {
+        notifier.notify({
+          title: title || "Terminal Watch",
+          message: message || "Event triggered",
+          wait: false,
+        });
+      } else {
+        vscode.window.showInformationMessage(`${title}: ${message}`);
       }
     },
   );
+  context.subscriptions.push(disposable);
+}
+
+// Called by checkOutput in extension.ts when a regex match occurs
+export function desktopNotify(title: string, message: string) {
+  // Calls the command registered by the UI Companion extension
+  vscode.commands.executeCommand("terminal-watch-host.notify", title, message);
 }
