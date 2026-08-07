@@ -2,22 +2,32 @@
   "name": "terminal-watch",
   "displayName": "Terminal Watch",
   "publisher": "BladeFin",
-  "description": "Monitors terminal output for regex patterns and alerts you when your commands finish. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
+  "description": "Monitors terminal output for regex patterns and alerts you when your commands finish — including CLI AI agents like Claude Code, Codex, and Freebuff. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
   "version": "0.0.3",
   "license": "MIT",
   "engines": {
     "vscode": "^1.125.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "AI"
   ],
   "keywords": [
     "terminal",
     "notification",
+    "notify",
     "monitor",
     "regex",
     "devcontainer",
-    "remote"
+    "remote",
+    "ai",
+    "agent",
+    "agentic",
+    "claude code",
+    "claude",
+    "codex",
+    "freebuff",
+    "automation"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -48,8 +58,9 @@
             "type": "string"
           },
           "default": [
-            "End.session",
-            "hell.o"
+            "End Session",
+            "Build successful",
+            "\\d+ tests passed"
           ],
           "description": "Regular expressions that trigger a notification when detected in the terminal."
         },

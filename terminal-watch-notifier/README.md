@@ -13,6 +13,7 @@ _Created by **Connor K**._
 - 🔔 **Native OS Desktop Notifications** - Uses `node-notifier` to raise Windows, macOS, and Linux desktop notifications.
 - 🖥️ **UI-Host Extension** - Runs on your local machine, so notifications appear on your desktop even when Terminal Watch itself runs inside a container, over SSH, or in WSL.
 - 🤫 **Hands-Free** - No configuration, no commands to run, no UI to manage.
+- 🤖 **AI Agent Companion** - Get a desktop ping when a CLI AI agent (Claude Code, Codex, Freebuff, and more) finishes its prompt in a watched terminal.
 
 ---
 
@@ -57,6 +58,11 @@ This split guarantees desktop notifications are raised on the machine you are ac
 ---
 
 ## 📜 Release Notes
+
+### 0.0.2
+
+- Declared `"api": "none"` so Terminal Watch can activate in Dev Containers and remote workspaces while this extension keeps running on your local UI host.
+- Added AI-agent keywords and descriptions for marketplace discoverability.
 
 ### 0.0.1
 

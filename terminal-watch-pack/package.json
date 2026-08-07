@@ -2,7 +2,7 @@
   "name": "terminal-watch-pack",
   "displayName": "Terminal Watch Pack",
   "publisher": "BladeFin",
-  "description": "Terminal Watch plus its desktop notification companion, Terminal Watch Notifier — installed together in one click.",
+  "description": "Terminal Watch plus its desktop notification companion, Terminal Watch Notifier — installed together in one click. Get notified on your desktop when CLI AI agents like Claude Code, Codex, or Freebuff finish.",
   "version": "0.0.1",
   "license": "MIT",
   "engines": {
@@ -14,7 +14,12 @@
   "keywords": [
     "terminal",
     "notification",
-    "extension pack"
+    "extension pack",
+    "ai",
+    "agent",
+    "claude code",
+    "codex",
+    "freebuff"
   ],
   "contributes": {
     "extensionPack": [

@@ -7,6 +7,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.2] - 2026-08-06
 
 - Declared `"api": "none"`. VS Code only supports `extensionDependencies` across extension hosts (e.g. Terminal Watch running in a Dev Container) when the providing extension exports no API. The notifier never exported one, so this is behavior-neutral for existing users.
+- Added AI-agent keywords and descriptions for marketplace discoverability.
 
 ## [Unreleased]
 

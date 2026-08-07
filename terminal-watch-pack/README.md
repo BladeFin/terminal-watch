@@ -35,7 +35,7 @@ Terminal Watch delegates desktop notifications to Terminal Watch Notifier across
 
 1. Install the **Terminal Watch Pack**.
 2. Click **New Watched Terminal** in the bottom-right status bar (or run `Terminal Watch: Create Watched Terminal` from the Command Palette).
-3. Pick a shell, run your command, and step away — you'll be notified when your regex triggers match.
+3. Pick a shell, run your command — a long build, a test suite, or a CLI AI agent like Claude Code, Codex, or Freebuff — and step away. You'll be notified when your regex triggers match.
 
 ---
 

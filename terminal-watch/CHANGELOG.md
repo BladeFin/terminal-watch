@@ -9,6 +9,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.3] - 2026-08-06
 
 - Fixed activation in Dev Containers and remote workspaces. `terminal-watch-notifier` now declares `"api": "none"`, which lets VS Code satisfy the cross-host `extensionDependencies` even though the notifier runs on the local UI host. Previously, Terminal Watch could not activate in a container because its dependency was not loaded in the container's extension host.
+- Improved marketplace discoverability for CLI AI agent workflows (Claude Code, Codex, Freebuff, and more): new `keywords`, an `AI` category, and AI-focused descriptions.
+- Replaced placeholder default triggers (`End.session`, `hell.o`) with useful defaults: `End Session`, `Build successful`, `\d+ tests passed`.
 
 ## [0.0.2] - 2026-08-06
 

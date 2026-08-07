@@ -2,7 +2,7 @@
 
 <!-- Stay productive while Terminal Watch alerts you when your commands finish. -->
 
-Terminal Watch is a VS Code extension that monitors terminal output and alerts you when your configured regex patterns appear. Whether you're waiting on an AI coding agent, a long build, tests, deployments, or any other long-running terminal process, Terminal Watch lets you step away and get notified when it's done.
+Terminal Watch is a VS Code extension that monitors terminal output and alerts you when your configured regex patterns appear. Whether you're waiting on a CLI AI agent (Claude Code, Codex, Freebuff, and more), a long build, tests, deployments, or any other long-running terminal process, Terminal Watch lets you step away and get notified when it's done.
 
 Terminal Watch is split into two extensions so that notifications reach your desktop even when the monitored terminal runs somewhere else:
 
@@ -25,6 +25,7 @@ _Created by **Connor K**._
 - 🎯 **Flexible Notification Modes** - Choose Desktop, VS Code, or Both.
 - 🖥️ **Container & Remote Friendly** - Terminal Watch runs inside your devcontainer or remote host while desktop notifications still appear on your local machine.
 - 🏃 **Workflow Agnostic** - Works seamlessly with AI agents, test runners, build tools, and custom scripts.
+- 🤖 **CLI AI Agent Ready** - Launch Claude Code, Codex, Freebuff, or any agentic CLI in a watched terminal and get pinged the moment it finishes your prompt.
 
 ---
 
@@ -40,12 +41,19 @@ _Created by **Connor K**._
 
 ## 💡 Example Use Cases
 
-### AI Coding Agents
+### 🤖 CLI AI Agents (Claude Code, Codex, Freebuff & more)
 
-Get notified when an agent finishes its task:
+Terminal Watch is built for agentic CLI workflows. Start Claude Code, Codex, Freebuff, or any other coding agent in a **Watched Terminal**, step away, and Terminal Watch notifies you — on your desktop or in-editor — the moment its output signals it's done with your prompt.
 
-- Pattern: `End Session`
-- Pattern: `completed|finished|done`
+| Workflow | Trigger pattern |
+| --- | --- |
+| Claude Code wrapping up | `End Session` |
+| Agent printing a completion summary | `completed\|finished\|done\|success` |
+| Test runner finishing | `\d+ tests passed` |
+| Build / compile finishing | `Build successful` |
+| Deployment finishing | `Deployment complete` |
+
+> 💡 Most agents print a final summary when a prompt completes — set a trigger that matches that line (or the agent's exit banner) and you'll be notified the moment it appears.
 
 ### Builds & Compilations
 
@@ -75,7 +83,7 @@ Configure Terminal Watch by searching for `Terminal Watch` in VS Code Settings (
 {
   "terminalWatch.triggers": [
     "End Session",
-    "Build complete",
+    "Build successful",
     "\\d+ tests passed"
   ],
   "terminalWatch.notificationMode": "Both",
@@ -86,7 +94,7 @@ Configure Terminal Watch by searching for `Terminal Watch` in VS Code Settings (
 ### Available Options
 
 - `terminalWatch.triggers`: `array` — List of regular expressions to monitor for in terminal output.
-  _Default:_ `["End Session", "Build complete", "\\d+ tests passed"]`
+  _Default:_ `["End Session", "Build successful", "\\d+ tests passed"]`
 - `terminalWatch.notificationMode`: `string` — Controls where notifications are sent.
   _Options:_ `"Desktop"`, `"VS Code"`, `"Both"`
   _Default:_ `"Both"`
@@ -131,6 +139,12 @@ Terminal Watch listens to terminal output, strips away terminal formatting ANSI 
 ---
 
 ## 📜 Release Notes
+
+### 0.0.3
+
+- Fixed activation in Dev Containers and remote workspaces (cross-host extension dependency via `"api": "none"`).
+- Better marketplace discoverability for CLI AI agents (Claude Code, Codex, Freebuff, and more).
+- Replaced placeholder default triggers with useful defaults.
 
 ### 0.0.2
 
