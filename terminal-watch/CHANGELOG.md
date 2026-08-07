@@ -15,7 +15,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Split desktop notification handling into the new **Terminal Watch Notifier** extension (`terminal-watch-notifier`).
 - `terminal-watch` now runs entirely in the workspace and delegates desktop notifications to the UI-host extension via the `terminal-watch-notifier.notify` command.
 - Removed the `node-notifier` runtime dependency from this extension.
-- Added `extensionDependencies` on `bladefin.terminal-watch-notifier` so installing Terminal Watch also installs and activates the notifier.
+- Added `extensionDependencies` on `BladeFin.terminal-watch-notifier` so installing Terminal Watch also installs and activates the notifier.
 - Desktop notifications fall back to an in-editor notification if the notifier extension is unavailable.
 
 ## [0.0.1] - Initial release

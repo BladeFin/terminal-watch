@@ -1,19 +1,25 @@
 {
   "name": "terminal-watch-pack",
   "displayName": "Terminal Watch Pack",
-  "publisher": "bladefin",
+  "publisher": "BladeFin",
   "description": "Terminal Watch plus its desktop notification companion, Terminal Watch Notifier — installed together in one click.",
   "version": "0.0.1",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.125.0"
   },
   "categories": [
     "Extension Packs"
   ],
+  "keywords": [
+    "terminal",
+    "notification",
+    "extension pack"
+  ],
   "contributes": {
     "extensionPack": [
-      "bladefin.terminal-watch",
-      "bladefin.terminal-watch-notifier"
+      "BladeFin.terminal-watch",
+      "BladeFin.terminal-watch-notifier"
     ]
   }
 }

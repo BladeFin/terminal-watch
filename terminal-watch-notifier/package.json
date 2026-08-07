@@ -1,15 +1,23 @@
 {
   "name": "terminal-watch-notifier",
   "displayName": "Terminal Watch Notifier",
-  "publisher": "bladefin",
+  "publisher": "BladeFin",
   "description": "Companion to Terminal Watch: raises native OS desktop notifications via node-notifier. Runs on the UI host so notifications work even when Terminal Watch runs in a container or remote workspace.",
   "version": "0.0.2",
+  "license": "MIT",
   "api": "none",
   "engines": {
     "vscode": "^1.125.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "notification",
+    "desktop",
+    "terminal",
+    "node-notifier",
+    "ui"
   ],
   "activationEvents": [
     "onStartupFinished"

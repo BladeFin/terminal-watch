@@ -1,14 +1,23 @@
 {
   "name": "terminal-watch",
   "displayName": "Terminal Watch",
-  "publisher": "bladefin",
+  "publisher": "BladeFin",
   "description": "Monitors terminal output for regex patterns and alerts you when your commands finish. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
   "version": "0.0.3",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.125.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "terminal",
+    "notification",
+    "monitor",
+    "regex",
+    "devcontainer",
+    "remote"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -18,7 +27,7 @@
     "workspace"
   ],
   "extensionDependencies": [
-    "bladefin.terminal-watch-notifier"
+    "BladeFin.terminal-watch-notifier"
   ],
   "contributes": {
     "configuration": {

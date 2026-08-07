@@ -4,10 +4,10 @@
 
 This extension pack installs both Terminal Watch extensions in one click:
 
-| Extension | Where it runs | What it does |
-| --- | --- | --- |
-| **Terminal Watch** | Workspace (container / remote host / local) | Spawns and monitors a watched terminal and matches regex triggers in terminal output |
-| **Terminal Watch Notifier** | UI host (your local machine) | Raises native OS desktop notifications when Terminal Watch detects a match |
+| Extension                   | Where it runs                               | What it does                                                                         |
+| --------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Terminal Watch**          | Workspace (container / remote host / local) | Spawns and monitors a watched terminal and matches regex triggers in terminal output |
+| **Terminal Watch Notifier** | UI host (your local machine)                | Raises native OS desktop notifications when Terminal Watch detects a match           |
 
 _Created by **Connor K**._
 
@@ -17,8 +17,8 @@ _Created by **Connor K**._
 
 Terminal Watch often runs inside a devcontainer, over SSH, or in WSL. Desktop notifications must be raised on the machine you are actually sitting at — your local host — not in the container.
 
-- **Terminal Watch** is a *workspace* extension, so it runs wherever your terminal runs.
-- **Terminal Watch Notifier** is a *UI* extension, so it always runs on your local machine.
+- **Terminal Watch** is a _workspace_ extension, so it runs wherever your terminal runs.
+- **Terminal Watch Notifier** is a _UI_ extension, so it always runs on your local machine.
 
 Terminal Watch delegates desktop notifications to Terminal Watch Notifier across the extension boundary, so you get notified on your desktop no matter where the monitored terminal lives.
 
@@ -26,8 +26,8 @@ Terminal Watch delegates desktop notifications to Terminal Watch Notifier across
 
 ## 📦 Included Extensions
 
-- [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=bladefin.terminal-watch)
-- [Terminal Watch Notifier](https://marketplace.visualstudio.com/items?itemName=bladefin.terminal-watch-notifier)
+- [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
+- [Terminal Watch Notifier](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch-notifier)
 
 ---
 

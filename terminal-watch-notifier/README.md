@@ -2,7 +2,7 @@
 
 <!-- Raises native OS desktop notifications for the Terminal Watch extension. -->
 
-Terminal Watch Notifier is the desktop notification companion to [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=bladefin.terminal-watch). When Terminal Watch detects one of your regex triggers in a monitored terminal, it calls this extension, which raises a native OS notification on your local machine.
+Terminal Watch Notifier is the desktop notification companion to [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch). When Terminal Watch detects one of your regex triggers in a monitored terminal, it calls this extension, which raises a native OS notification on your local machine.
 
 _Created by **Connor K**._
 
