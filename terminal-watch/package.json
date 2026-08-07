@@ -2,8 +2,8 @@
   "name": "terminal-watch",
   "displayName": "Terminal Watch",
   "publisher": "bladefin",
-  "description": "Triggers native notifications when terminal output matches specific text patterns.",
-  "version": "0.0.1",
+  "description": "Monitors terminal output for regex patterns and alerts you when your commands finish. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.125.0"
   },
@@ -14,6 +14,12 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "extensionDependencies": [
+    "bladefin.terminal-watch-notifier"
+  ],
   "contributes": {
     "configuration": {
       "title": "Terminal Watch",
@@ -70,7 +76,6 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.13.3",
-    "@types/node-notifier": "^8.0.5",
     "@types/vscode": "^1.125.0",
     "@vscode/test-cli": "^0.0.15",
     "eslint": "^10.5.0",
@@ -80,11 +85,5 @@
   "overrides": {
     "diff": "^8.0.4",
     "serialize-javascript": "^7.0.6"
-  },
-  "dependencies": {
-    "node-notifier": "^10.0.1"
-  },
-  "extensionKind": [
-    "workspace"
-  ]
+  }
 }

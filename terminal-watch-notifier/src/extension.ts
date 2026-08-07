@@ -10,14 +10,15 @@ function getNotifier() {
   }
 }
 
-// Handler registered on BOTH UI (Host) and Workspace (Container)
-export function registerNotificationHandler(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
-    "terminal-watch.showHostNotification",
+    "terminal-watch-notifier.notify",
     (title: string, message: string) => {
       const notifier = getNotifier();
 
-      // If running on local host, node-notifier hits native Windows/macOS toasts
+      // This extension runs on the local UI host, so node-notifier can raise
+      // native Windows/macOS/Linux desktop notifications even when Terminal
+      // Watch itself runs inside a container or remote workspace.
       if (notifier) {
         notifier.notify({
           title: title || "Terminal Watch",
@@ -32,8 +33,4 @@ export function registerNotificationHandler(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
-// Called by checkOutput in extension.ts when a regex match occurs
-export function desktopNotify(title: string, message: string) {
-  // Calls the command registered by the UI Companion extension
-  vscode.commands.executeCommand("terminal-watch-host.notify", title, message);
-}
+export function deactivate() {}

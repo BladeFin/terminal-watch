@@ -1,0 +1,46 @@
+{
+  "name": "terminal-watch-notifier",
+  "displayName": "Terminal Watch Notifier",
+  "publisher": "bladefin",
+  "description": "Companion to Terminal Watch: raises native OS desktop notifications via node-notifier. Runs on the UI host so notifications work even when Terminal Watch runs in a container or remote workspace.",
+  "version": "0.0.2",
+  "api": "none",
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "extensionKind": [
+    "ui"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.13.3",
+    "@types/node-notifier": "^8.0.5",
+    "@types/vscode": "^1.125.0",
+    "@vscode/test-cli": "^0.0.15",
+    "eslint": "^10.5.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  },
+  "dependencies": {
+    "node-notifier": "^10.0.1"
+  }
+}

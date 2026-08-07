@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { desktopNotify, registerNotificationHandler } from "./notifications";
+import { desktopNotify } from "./notifications";
 
 interface IPty {
   pid: number;
@@ -112,9 +112,6 @@ function getAvailableShells(configuredPath: string): ShellChoice[] {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // Registers the cross-boundary command handler
-  registerNotificationHandler(context);
-
   const config = vscode.workspace.getConfiguration("terminalWatch");
 
   let notificationMode = config.get<string>("notificationMode", "Both");
