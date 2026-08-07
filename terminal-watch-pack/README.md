@@ -24,6 +24,24 @@ Terminal Watch delegates desktop notifications to Terminal Watch Notifier across
 
 ---
 
+## 🐳 Dev Containers
+
+Terminal Watch must be installed **inside** the container to monitor terminals there. Add it to your `devcontainer.json`:
+
+```json
+{
+  "customizations": {
+    "vscode": {
+      "extensions": ["BladeFin.terminal-watch"]
+    }
+  }
+}
+```
+
+The Notifier is a UI extension: it stays on your local machine and is pulled in automatically, so desktop notifications just work with no extra setup.
+
+---
+
 ## 📦 Included Extensions
 
 - [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)

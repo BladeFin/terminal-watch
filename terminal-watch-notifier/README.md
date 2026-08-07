@@ -33,6 +33,8 @@ When a trigger matches, Terminal Watch executes the `terminal-watch-notifier.not
 
 This extension declares `"api": "none"`, which is what allows Terminal Watch to depend on it from inside a Dev Container or remote workspace while this extension keeps running on your local UI host.
 
+> 🐳 **Using a Dev Container?** Terminal Watch is a workspace extension, so it must be installed **inside** the container — add `BladeFin.terminal-watch` to your `devcontainer.json`. This extension stays on your local machine automatically; you don't need to install it in the container.
+
 ---
 
 ## ⚙️ Extension Settings
@@ -54,6 +56,7 @@ This split guarantees desktop notifications are raised on the machine you are ac
 
 - Desktop notifications depend on your OS's notification service being available and enabled.
 - If node-notifier cannot be loaded in a given environment, this extension falls back to an in-editor VS Code notification.
+- ⌨️ **Triggers While You're Typing**: This extension notifies whenever Terminal Watch matches a regex — and Terminal Watch matches against *all* terminal output, including the text echoed back while you type. So while you're actively interacting with a watched terminal, your input can fire a notification before your command actually finishes. Prefer trigger patterns that match finished output, or use Terminal Watch's notification cooldown to reduce noise.
 
 ---
 

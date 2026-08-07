@@ -4,6 +4,7 @@
   "publisher": "BladeFin",
   "description": "Terminal Watch plus its desktop notification companion, Terminal Watch Notifier — installed together in one click. Get notified on your desktop when CLI AI agents like Claude Code, Codex, or Freebuff finish.",
   "version": "0.0.1",
+  "icon": "icon.png",
   "license": "MIT",
   "engines": {
     "vscode": "^1.125.0"

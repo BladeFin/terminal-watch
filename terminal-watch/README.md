@@ -116,15 +116,32 @@ Terminal Watch listens to terminal output, strips away terminal formatting ANSI 
 ## 📋 Requirements
 
 - Requires VS Code version `1.125.0` or higher.
-- **Terminal Watch Notifier** extension (installed automatically when Terminal Watch is installed, or together via the Terminal Watch Pack). In Dev Containers and remote workspaces, the notifier runs on your local machine; Terminal Watch still activates inside the container because the notifier declares `"api": "none"`, which allows the extension dependency to be satisfied across extension hosts.
+- **Terminal Watch Notifier** extension (installed automatically when Terminal Watch is installed, or together via the Terminal Watch Pack). The notifier is a *UI* extension — it runs on your local machine, so desktop notifications reach your OS even when the monitored terminal lives in a container or remote host.
 - A terminal workflow that produces detectable stdout text.
+
+### 🐳 Using Terminal Watch in a Dev Container
+
+Terminal Watch is a **workspace** extension, so it only runs where your workspace runs. In a Dev Container, that means **Terminal Watch must be installed *inside* the container** — installing it only on your local machine is not enough. Add it to your `devcontainer.json`:
+
+```json
+{
+  "customizations": {
+    "vscode": {
+      "extensions": ["BladeFin.terminal-watch"]
+    }
+  }
+}
+```
+
+The **Notifier** does *not* need to be added to the container. Because Terminal Watch lists it as a dependency (and it declares `"api": "none"`), VS Code installs and runs it automatically on your local machine — the same machine where your desktop notifications appear.
 
 ---
 
 ## ⚠️ Known Issues & Compatibility
 
 - 📦 **Split Architecture**: Desktop notifications require the Terminal Watch Notifier extension (which runs on your local machine). If it is unavailable, Terminal Watch falls back to an in-editor notification so matches are never silently dropped.
-- 🐳 **Dev Containers & Remote**: Terminal Watch activates in the container and delegates notifications to the notifier on your local UI host. Make sure the notifier is installed on your local machine (the Pack does this automatically).
+- 🐳 **Dev Containers & Remote**: Terminal Watch must be installed **inside** the container to run there — add `BladeFin.terminal-watch` to your `devcontainer.json` extensions (see the Requirements section above). The notifier is then installed automatically on your local UI host; nothing to do on your machine.
+- ⌨️ **Triggers While You're Typing**: Regexes are matched against *all* terminal output — including the text echoed back while you type. While you're actively interacting with a watched terminal, your input can match a trigger and fire a notification before your command actually finishes. Prefer patterns that match finished output, or rely on the notification cooldown to reduce noise.
 - ⚡ **Formatting Stripping**: Very complex terminal control sequences or ANSI art may occasionally obscure pattern matching.
 
 ---
@@ -133,6 +150,7 @@ Terminal Watch listens to terminal output, strips away terminal formatting ANSI 
 
 - 👆 Click notification to focus active terminal
 - 🎛️ Per-trigger notification preferences
+- 🚦 Smarter trigger detection — avoid firing while the terminal is actively being used
 - 🤖 Presets for popular AI coding agents (Claude Code, Codex, and others)
 - 📚 Expanded documentation and workflow examples
 

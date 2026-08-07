@@ -4,6 +4,7 @@
   "publisher": "BladeFin",
   "description": "Monitors terminal output for regex patterns and alerts you when your commands finish — including CLI AI agents like Claude Code, Codex, and Freebuff. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
   "version": "0.0.3",
+  "icon": "icon.png",
   "license": "MIT",
   "engines": {
     "vscode": "^1.125.0"
