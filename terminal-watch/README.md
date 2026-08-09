@@ -1,6 +1,14 @@
 # Terminal Watch
 
-<!-- TODO: add a demo GIF here (PNG/GIF/JPG, https URL) -->
+## Demo
+
+**🤖 CLI AI agent** — set a trigger for the agent's "done" banner and walk away:
+
+![AI agent demo](images/demo-ai.gif)
+
+**🧪 Test suite** — get pinged the moment `\d+ tests passed` appears:
+
+![Test suite demo](images/demo-tests.gif)
 
 Terminal Watch watches your terminal so you don't have to. It launches a dedicated **watched terminal**, scans the output for your regex triggers, and pings you — in-editor or with a native OS notification — the moment one appears. Made for long builds, test runs, deployments, and CLI AI agents (Claude Code, Codex, Codebuff, …) you'd rather not babysit.
 

@@ -11,6 +11,12 @@ This extension pack installs both Terminal Watch extensions in one click:
 
 _Created by **Connor K**._
 
+## Demo
+
+**🤖 CLI AI agent** — get a desktop ping the moment a CLI AI agent (Claude Code, Codex, Freebuff) finishes:
+
+![AI agent demo](images/demo-ai.gif)
+
 ---
 
 ## Why two extensions?
