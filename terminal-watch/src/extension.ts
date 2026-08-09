@@ -118,6 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
   let triggers = compileRegexes(config.get<string[]>("triggers", []));
   let cooldownSeconds = config.get<number>("cooldownSeconds", 5);
   let shellPath = resolveConfiguredShell(config);
+  let listening = config.get<boolean>("autoListeningEnabled", false);
 
   const configListener = vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration("terminalWatch")) {
@@ -127,10 +128,21 @@ export function activate(context: vscode.ExtensionContext) {
       notificationMode = config.get<string>("notificationMode", "Both");
       cooldownSeconds = config.get<number>("cooldownSeconds", 5);
       shellPath = resolveConfiguredShell(config);
+
+      // `listening` is intentionally NOT reloaded here: it is initialized from
+      // autoListeningEnabled at activation, then controlled by the user via the
+      // status bar menu. Reloading it would clobber manual toggles.
     }
   });
 
   context.subscriptions.push(configListener);
+
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
+  );
+  statusBarItem.command = "terminal-watch.openMenu";
+  statusBarItem.text = "$(terminal) Terminal Watch";
 
   const stateByTerminal = new WeakMap<
     vscode.Terminal,
@@ -138,6 +150,10 @@ export function activate(context: vscode.ExtensionContext) {
   >();
 
   function checkOutput(terminal: vscode.Terminal, data: string) {
+    if (!listening) {
+      return;
+    }
+
     const state = stateByTerminal.get(terminal) ?? {
       buffer: "",
       lastTriggerTime: 0,
@@ -190,11 +206,14 @@ export function activate(context: vscode.ExtensionContext) {
   const startListener = vscode.window.onDidStartTerminalShellExecution(
     async (event) => {
       const { terminal, execution } = event;
-      if (!watchedTerminals.has(terminal)) {
+      if (!watchedTerminals.has(terminal) || !listening) {
         return;
       }
       const stream = execution.read();
       for await (const data of stream) {
+        if (!listening) {
+          break;
+        }
         checkOutput(terminal, data);
       }
     },
@@ -275,7 +294,11 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         writeEmitter.fire(
-          `\x1b[90m[terminal-watch] Active monitoring enabled on "${path}" (pid ${shellProcess.pid})\x1b[0m\r\n`,
+          `\x1b[90m[terminal-watch] ${
+            listening
+              ? "Active monitoring enabled"
+              : "Monitoring paused (listening is OFF)"
+          } on "${path}" (pid ${shellProcess.pid})\x1b[0m\r\n`,
         );
 
         shellProcess.onData((data) => {
@@ -336,36 +359,90 @@ export function activate(context: vscode.ExtensionContext) {
     createPtyWatchedTerminal(path, pty);
   }
 
-  const commandDisposable = vscode.commands.registerCommand(
+  async function createWatchedTerminal() {
+    const picked = await vscode.window.showQuickPick(
+      getAvailableShells(shellPath),
+      {
+        placeHolder: "Choose a shell to watch",
+      },
+    );
+    if (!picked) {
+      return;
+    }
+    startWatchedTerminal(picked.shellPath);
+  }
+
+  interface TerminalWatchMenuItem extends vscode.QuickPickItem {
+    action: "toggle-listening" | "create-terminal";
+  }
+
+  function updateStatusBar() {
+    statusBarItem.tooltip = listening
+      ? "Listening is ON \u2014 click to toggle listening or create a watched terminal."
+      : "Listening is OFF \u2014 click to toggle listening or create a watched terminal.";
+  }
+
+  async function openMenu() {
+    const toggleItem: TerminalWatchMenuItem = listening
+      ? {
+          action: "toggle-listening",
+          label: "$(check) Listening: ON",
+          description: "Click to turn listening off",
+        }
+      : {
+          action: "toggle-listening",
+          label: "$(circle-slash) Listening: OFF",
+          description: "Click to turn listening on",
+        };
+
+    const createItem: TerminalWatchMenuItem = {
+      action: "create-terminal",
+      label: "$(terminal) New Watched Terminal",
+      description: "Choose a shell and launch a watched terminal",
+    };
+
+    const picked = await vscode.window.showQuickPick<TerminalWatchMenuItem>(
+      [toggleItem, createItem],
+      {
+        placeHolder: "Terminal Watch",
+      },
+    );
+
+    if (!picked) {
+      return;
+    }
+
+    if (picked.action === "toggle-listening") {
+      listening = !listening;
+      updateStatusBar();
+      await openMenu();
+      return;
+    }
+
+    await createWatchedTerminal();
+  }
+
+  const createCommandDisposable = vscode.commands.registerCommand(
     "terminal-watch.createWatchedTerminal",
-    async () => {
-      const picked = await vscode.window.showQuickPick(
-        getAvailableShells(shellPath),
-        {
-          placeHolder: "Choose a shell to watch",
-        },
-      );
-      if (!picked) {
-        return;
-      }
-      startWatchedTerminal(picked.shellPath);
-    },
+    createWatchedTerminal,
+  );
+
+  const openMenuCommandDisposable = vscode.commands.registerCommand(
+    "terminal-watch.openMenu",
+    openMenu,
   );
 
   const closeListener = vscode.window.onDidCloseTerminal((closedTerminal) => {
     watchedTerminals.delete(closedTerminal);
   });
 
-  context.subscriptions.push(closeListener, commandDisposable);
-
-  const statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100,
+  context.subscriptions.push(
+    closeListener,
+    createCommandDisposable,
+    openMenuCommandDisposable,
   );
-  statusBarItem.command = "terminal-watch.createWatchedTerminal";
-  statusBarItem.text = "$(terminal) New Watched Terminal";
-  statusBarItem.tooltip =
-    "Click to choose a shell and launch a watched terminal";
+
+  updateStatusBar();
   statusBarItem.show();
   context.subscriptions.push(statusBarItem);
 }

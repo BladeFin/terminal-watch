@@ -23,6 +23,7 @@ _Created by **Connor K**._
 - 💬 **Configurable Triggers** - Support for multiple, fully custom regular expression triggers.
 - ⚡ **Lightweight Terminal Monitoring** - Low overhead background terminal stdout stream filtering.
 - 🎯 **Flexible Notification Modes** - Choose Desktop, VS Code, or Both.
+- 🔕 **Listening Toggle** - Turn monitoring on/off from the status bar. When listening is OFF, terminal output isn't scanned for triggers at all.
 - 🖥️ **Container & Remote Friendly** - Terminal Watch runs inside your devcontainer or remote host while desktop notifications still appear on your local machine.
 - 🏃 **Workflow Agnostic** - Works seamlessly with AI agents, test runners, build tools, and custom scripts.
 - 🤖 **CLI AI Agent Ready** - Launch Claude Code, Codex, Freebuff, or any agentic CLI in a watched terminal and get pinged the moment it finishes your prompt.
@@ -32,8 +33,11 @@ _Created by **Connor K**._
 ## 🛠️ How to Use
 
 1. Install the **Terminal Watch Pack** (or Terminal Watch + Terminal Watch Notifier individually).
-2. Click the **New Watched Terminal** button located in the bottom-right corner of the status bar (or press `Ctrl+Shift+P` / `Cmd+Shift+P` and search for `Terminal Watch: Create Watched Terminal`).
-3. Select your preferred terminal type (the default profile is recommended).
+2. Click the **Terminal Watch** button located in the bottom-right corner of the status bar. A menu opens with **Listening** (toggle monitoring on/off) and **New Watched Terminal**.
+3. Make sure **Listening** is **ON** (it starts OFF by default) — toggle it right from the menu.
+4. Select **New Watched Terminal**, then choose your preferred terminal type (the default profile is recommended).
+5. Run your command, script, or AI agent as usual in the newly opened terminal.
+6. Step away—Terminal Watch will send you a notification as soon as your regex trigger is matched!
 4. Run your command, script, or AI agent as usual in the newly opened terminal.
 5. Step away—Terminal Watch will send you a notification as soon as your regex trigger is matched!
 
@@ -101,12 +105,14 @@ Configure Terminal Watch by searching for `Terminal Watch` in VS Code Settings (
 - `terminalWatch.cooldownSeconds`: `number` — Minimum seconds between notifications.
   _Default:_ `5`
 - `terminalWatch.shellPath`: `string` — Custom path to the shell executable (leave blank to auto-detect OS default).
+- `terminalWatch.autoListeningEnabled`: `boolean` — Start listening automatically when Terminal Watch activates. When `false` (default), listening starts **OFF**; turn it on from the **Terminal Watch** status bar menu.
+  _Default:_ `false`
 
 ---
 
 ## 🔍 How It Works
 
-Terminal Watch listens to terminal output, strips away terminal formatting ANSI codes, and runs the clean text against your configured regular expressions. When a match is detected, it immediately dispatches your selected notification type:
+Terminal Watch listens to terminal output, strips away terminal formatting ANSI codes, and runs the clean text against your configured regular expressions — but only while **Listening** is **ON** (toggle it from the **Terminal Watch** status bar menu). When listening is OFF, terminal output is not scanned, so no triggers fire and no matching work is done. When a match is detected, it immediately dispatches your selected notification type:
 
 - **VS Code mode** - Shows an in-editor popup directly from Terminal Watch.
 - **Desktop mode** - Executes the `terminal-watch-notifier.notify` command, handled by the Terminal Watch Notifier extension on your local UI host, which raises a native OS notification via `node-notifier`.

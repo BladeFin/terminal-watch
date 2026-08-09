@@ -52,8 +52,8 @@ The Notifier is a UI extension: it stays on your local machine and is pulled in 
 ## 🛠️ How to Use
 
 1. Install the **Terminal Watch Pack**.
-2. Click **New Watched Terminal** in the bottom-right status bar (or run `Terminal Watch: Create Watched Terminal` from the Command Palette).
-3. Pick a shell, run your command — a long build, a test suite, or a CLI AI agent like Claude Code, Codex, or Freebuff — and step away. You'll be notified when your regex triggers match.
+2. Click **Terminal Watch** in the bottom-right status bar — a menu opens where you can toggle **Listening** on/off or launch a **New Watched Terminal** (or run `Terminal Watch: Open Menu` / `Terminal Watch: Create Watched Terminal` from the Command Palette).
+3. Make sure **Listening** is **ON** (it starts OFF by default), pick a shell, run your command — a long build, a test suite, or a CLI AI agent like Claude Code, Codex, or Freebuff — and step away. You'll be notified when your regex triggers match.
 
 ---
 

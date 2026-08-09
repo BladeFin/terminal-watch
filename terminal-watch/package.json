@@ -44,6 +44,11 @@
     "configuration": {
       "title": "Terminal Watch",
       "properties": {
+        "terminalWatch.autoListeningEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Start listening for triggers automatically when Terminal Watch activates. When disabled (default), listening stays OFF until you enable it from the Terminal Watch status bar menu."
+        },
         "terminalWatch.notificationMode": {
           "type": "string",
           "enum": [
@@ -82,6 +87,11 @@
       {
         "command": "terminal-watch.createWatchedTerminal",
         "title": "Terminal Watch: Create Watched Terminal",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "terminal-watch.openMenu",
+        "title": "Terminal Watch: Open Menu",
         "icon": "$(terminal)"
       }
     ]
