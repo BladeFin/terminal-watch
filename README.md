@@ -1,43 +1,73 @@
-# Terminal Watch Monorepo
+# Terminal Watch
 
-Terminal Watch alerts you when your terminal output matches a regex pattern, so you can step away from long-running builds, test suites, deployments, and AI agents.
+Watches your terminal so you don't have to.
 
-This repository contains three independently publishable VS Code extensions:
+[![Version](https://img.shields.io/visual-studio-marketplace/v/BladeFin.terminal-watch?label=VS%20Marketplace&color=4B8BBE)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/BladeFin.terminal-watch?label=installs&color=4B8BBE)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](terminal-watch/LICENSE)
 
-| Folder | Extension | Where it runs | Purpose |
-| --- | --- | --- | --- |
-| `terminal-watch/` | **Terminal Watch** | Workspace (container / remote host / local) | Spawns a watched terminal via VS Code's bundled `node-pty`, monitors output, and matches regex triggers |
-| `terminal-watch-notifier/` | **Terminal Watch Notifier** | UI host (local machine) | Raises native OS desktop notifications via `node-notifier` when Terminal Watch calls its `terminal-watch-notifier.notify` command |
-| `terminal-watch-pack/` | **Terminal Watch Pack** | — | An extension pack that installs both of the above in one click (`contributes.extensionPack`) |
+Terminal Watch pings you the moment your terminal output matches a regex — so you can kick off a long build, a test suite, a deployment, or a CLI AI agent and walk away. No more babysitting the terminal.
 
-## Why the split?
+**🤖 AI agent finished** — set a trigger for the agent's "done" banner and step away:
 
-Terminal Watch is a **workspace** extension, so it runs inside your devcontainer, over SSH, or in WSL — wherever the terminal it monitors lives. Desktop notifications, however, must appear on the machine you are sitting at. Terminal Watch Notifier is a **UI** extension that always runs on your local host, and Terminal Watch delegates desktop notifications to it across the extension boundary.
+![AI agent demo](terminal-watch/images/demo-ai.gif)
 
-## Development
+**🧪 Test suite finished** — get pinged the moment `\d+ tests passed` appears:
 
-Each extension folder is self-contained and mirrors the standard VS Code extension scaffold:
+![Test suite demo](terminal-watch/images/demo-tests.gif)
 
-```bash
-cd terminal-watch        # or terminal-watch-notifier
-npm install
-npm run compile
-npm run lint
-```
+## What it does
 
-To run an extension in the Extension Development Host, open its folder in VS Code and press `F5`.
+- **Regex triggers** — watch for any pattern in terminal output (ANSI codes stripped), with sensible defaults for builds, tests, deployments, and AI agents
+- **Desktop + in-editor notifications** — a native OS notification, a VS Code toast, or both
+- **Container & remote friendly** — monitors terminals in devcontainers, over SSH, or in WSL, and still pings you on your local desktop
+- **Listening toggle & cooldown** — nothing is scanned while it's off; a cooldown silences notification storms
+- **Zero native dependencies** — reuses the `node-pty` module already bundled with VS Code
 
-To test the split end-to-end, launch Terminal Watch with the notifier also loaded as a development extension:
+## Quick start
 
-```
---extensionDevelopmentPath=/path/to/terminal-watch
---extensionDevelopmentPath=/path/to/terminal-watch-notifier
-```
+1. **Install the [Terminal Watch Pack](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch-pack)** — one click installs Terminal Watch plus its notification companion.
+2. Click **Terminal Watch** in the status bar → turn **Listening: ON** → **New Watched Terminal**.
+3. Run your command, walk away, get notified when it's done.
 
-## Packaging
+## Use cases
 
-From each extension folder:
+| You're running…                               | Example trigger       | You get pinged when…          |
+| --------------------------------------------- | --------------------- | ----------------------------- |
+| A CLI AI agent (Claude Code, Codex, Freebuff) | `End session`         | the agent finishes its prompt |
+| A test suite                                  | `\d+ tests passed`    | the suite passes              |
+| A build / compile                             | `Build successful`    | it finishes compiling         |
+| A deployment                                  | `Deployment complete` | it ships                      |
 
-```bash
-npx @vscode/vsce package   # produces <name>-<version>.vsix
-```
+Triggers are plain regexes — add your own under `terminalWatch.triggers` in Settings.
+
+## How it works
+
+One project, two extensions — because the terminal and the notification live in different places:
+
+- **Terminal Watch** is a _workspace_ extension. It runs wherever your terminal runs — inside a devcontainer, on a remote host, or locally — spawns a watched terminal via VS Code's bundled `node-pty`, and matches triggers in the output.
+- **Terminal Watch Notifier** is a _UI_ extension. It always runs on your local machine and raises the native OS notification when Terminal Watch calls it.
+
+That split is what makes container and remote workflows work: the terminal is watched in the container, but the "your tests passed" popup still lands on your desktop.
+
+**Stack:** TypeScript · VS Code extension API (workspace + UI hosts) · `node-pty` (bundled with VS Code) · `node-notifier` · regex matching, unit-tested with Mocha.
+
+## Repository layout
+
+| Folder                     | What it is                                            |
+| -------------------------- | ----------------------------------------------------- |
+| `terminal-watch/`          | The main extension — watched terminals + regex engine |
+| `terminal-watch-notifier/` | The desktop-notification companion                    |
+| `terminal-watch-pack/`     | One-click extension pack that installs both           |
+
+Each folder is a standard VS Code extension scaffold: `npm install && npm run compile && npm run lint`.
+
+## Compatibility
+
+- Requires VS Code `^1.125.0`
+- Tested primarily on **Windows**; macOS and Linux supported via VS Code's bundled `node-pty`
+- 🐳 In devcontainers, add `BladeFin.terminal-watch` to `devcontainer.json` — the notifier stays on your local machine automatically
+
+## License
+
+MIT
