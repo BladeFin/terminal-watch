@@ -1,196 +1,100 @@
 # Terminal Watch
 
-<!-- Stay productive while Terminal Watch alerts you when your commands finish. -->
+<!-- TODO: add a demo GIF here (PNG/GIF/JPG, https URL) -->
 
-Terminal Watch is a VS Code extension that monitors terminal output and alerts you when your configured regex patterns appear. Whether you're waiting on a CLI AI agent (Claude Code, Codex, Freebuff, and more), a long build, tests, deployments, or any other long-running terminal process, Terminal Watch lets you step away and get notified when it's done.
-
-Terminal Watch is split into two extensions so that notifications reach your desktop even when the monitored terminal runs somewhere else:
-
-| Extension | Where it runs | What it does |
-| --- | --- | --- |
-| **Terminal Watch** | Workspace (container / remote host / local) | Spawns and monitors a watched terminal, matches regex triggers, and decides when to notify |
-| **Terminal Watch Notifier** | UI host (your local machine) | Receives notifications from Terminal Watch and raises native OS desktop notifications |
-
-Install the **Terminal Watch Pack** to get both extensions with a single click.
+Terminal Watch watches your terminal so you don't have to. It launches a dedicated **watched terminal**, scans the output for your regex triggers, and pings you — in-editor or with a native OS notification — the moment one appears. Made for long builds, test runs, deployments, and CLI AI agents (Claude Code, Codex, Codebuff, …) you'd rather not babysit.
 
 _Created by **Connor K**._
 
----
+## Highlights
 
-## 🚀 Features
+- 🔔 **Desktop + in-editor notifications** when a command finishes
+- ⚙️ **Custom regex triggers** with a cooldown to cut the noise
+- 🔕 **Listening toggle** — nothing is scanned while it's off
+- 🖥️ **Container & remote friendly** — notifications still land on your desktop
+- 🤖 **CLI AI agent ready** — set a trigger for the agent's "done" banner and walk away
 
-- 🔔 **Desktop & In-Editor Notifications** - Get notified via native OS desktop alerts (via Terminal Watch Notifier) or VS Code popup notifications.
-- 💬 **Configurable Triggers** - Support for multiple, fully custom regular expression triggers.
-- ⚡ **Lightweight Terminal Monitoring** - Low overhead background terminal stdout stream filtering.
-- 🎯 **Flexible Notification Modes** - Choose Desktop, VS Code, or Both.
-- 🔕 **Listening Toggle** - Turn monitoring on/off from the status bar. When listening is OFF, terminal output isn't scanned for triggers at all.
-- 🖥️ **Container & Remote Friendly** - Terminal Watch runs inside your devcontainer or remote host while desktop notifications still appear on your local machine.
-- 🏃 **Workflow Agnostic** - Works seamlessly with AI agents, test runners, build tools, and custom scripts.
-- 🤖 **CLI AI Agent Ready** - Launch Claude Code, Codex, Freebuff, or any agentic CLI in a watched terminal and get pinged the moment it finishes your prompt.
+## Quickstart
 
----
+1. Install the **Terminal Watch Pack** (or Terminal Watch + Terminal Watch Notifier).
+2. Click **Terminal Watch** in the status bar → turn **Listening: ON**.
+3. Click **New Watched Terminal**, pick a shell, run your command.
+4. Get notified when it's done. That's it.
 
-## 🛠️ How to Use
-
-1. Install the **Terminal Watch Pack** (or Terminal Watch + Terminal Watch Notifier individually).
-2. Click the **Terminal Watch** button located in the bottom-right corner of the status bar. A menu opens with **Listening** (toggle monitoring on/off) and **New Watched Terminal**.
-3. Make sure **Listening** is **ON** (it starts OFF by default) — toggle it right from the menu.
-4. Select **New Watched Terminal**, then choose your preferred terminal type (the default profile is recommended).
-5. Run your command, script, or AI agent as usual in the newly opened terminal.
-6. Step away—Terminal Watch will send you a notification as soon as your regex trigger is matched!
-4. Run your command, script, or AI agent as usual in the newly opened terminal.
-5. Step away—Terminal Watch will send you a notification as soon as your regex trigger is matched!
-
----
-
-## 💡 Example Use Cases
-
-### 🤖 CLI AI Agents (Claude Code, Codex, Freebuff & more)
-
-Terminal Watch is built for agentic CLI workflows. Start Claude Code, Codex, Freebuff, or any other coding agent in a **Watched Terminal**, step away, and Terminal Watch notifies you — on your desktop or in-editor — the moment its output signals it's done with your prompt.
-
-| Workflow | Trigger pattern |
-| --- | --- |
-| Claude Code wrapping up | `End Session` |
-| Agent printing a completion summary | `completed\|finished\|done\|success` |
-| Test runner finishing | `\d+ tests passed` |
-| Build / compile finishing | `Build successful` |
-| Deployment finishing | `Deployment complete` |
-
-> 💡 Most agents print a final summary when a prompt completes — set a trigger that matches that line (or the agent's exit banner) and you'll be notified the moment it appears.
-
-### Builds & Compilations
-
-Get notified when a build completes:
-
-- Pattern: `Build successful`
-
-### Test Suites
-
-Get notified when test runners finish:
-
-- Pattern: `\d+ tests passed`
-
-### Deployments
-
-Get notified when a deployment command wraps up:
-
-- Pattern: `Deployment complete`
-
----
-
-## ⚙️ Extension Settings
-
-Configure Terminal Watch by searching for `Terminal Watch` in VS Code Settings (`Ctrl+,`) or adding the following to your `settings.json`:
+**Prefer the keyboard?** Bind the two commands in `keybindings.json`:
 
 ```json
-{
-  "terminalWatch.triggers": [
-    "End Session",
-    "Build successful",
-    "\\d+ tests passed"
-  ],
-  "terminalWatch.notificationMode": "Both",
-  "terminalWatch.cooldownSeconds": 5
-}
+[
+  { "key": "ctrl+alt+t", "command": "terminal-watch.createWatchedTerminal" },
+  { "key": "ctrl+alt+l", "command": "terminal-watch.openMenu" }
+]
 ```
 
-### Available Options
+## Triggers
 
-- `terminalWatch.triggers`: `array` — List of regular expressions to monitor for in terminal output.
-  _Default:_ `["End Session", "Build successful", "\\d+ tests passed"]`
-- `terminalWatch.notificationMode`: `string` — Controls where notifications are sent.
-  _Options:_ `"Desktop"`, `"VS Code"`, `"Both"`
-  _Default:_ `"Both"`
-- `terminalWatch.cooldownSeconds`: `number` — Minimum seconds between notifications.
-  _Default:_ `5`
-- `terminalWatch.shellPath`: `string` — Custom path to the shell executable (leave blank to auto-detect OS default).
-- `terminalWatch.autoListeningEnabled`: `boolean` — Start listening automatically when Terminal Watch activates. When `false` (default), listening starts **OFF**; turn it on from the **Terminal Watch** status bar menu.
-  _Default:_ `false`
+Output is matched against your configured regexes (ANSI codes stripped). Defaults:
 
----
+| Trigger             | Use case                      |
+| ------------------- | ----------------------------- |
+| `End session`       | Freebuff wrapping up a prompt |
+| `accept.{1,5}edits` | Agent asking to accept edits  |
+| `Build successful`  | Build / compile finishing     |
+| `\d+ tests passed`  | Test suite finishing          |
 
-## 🔍 How It Works
+**Add your own:** `Ctrl+,` → search `Terminal Watch` → add a pattern to `terminalWatch.triggers`. Each entry is a regular expression — e.g. `Deployment complete` fires when a deployment finishes.
 
-Terminal Watch listens to terminal output, strips away terminal formatting ANSI codes, and runs the clean text against your configured regular expressions — but only while **Listening** is **ON** (toggle it from the **Terminal Watch** status bar menu). When listening is OFF, terminal output is not scanned, so no triggers fire and no matching work is done. When a match is detected, it immediately dispatches your selected notification type:
+## Settings
 
-- **VS Code mode** - Shows an in-editor popup directly from Terminal Watch.
-- **Desktop mode** - Executes the `terminal-watch-notifier.notify` command, handled by the Terminal Watch Notifier extension on your local UI host, which raises a native OS notification via `node-notifier`.
+| Setting                              | Default                                                                         | Purpose                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `terminalWatch.triggers`             | `["End session", "Build successful", "accept.{1,5}edits", "\\d+ tests passed"]` | Regexes that fire a notification                           |
+| `terminalWatch.notificationMode`     | `"Both"`                                                                        | Where notifications go: `Desktop`, `VS Code`, or `Both`    |
+| `terminalWatch.cooldownSeconds`      | `5`                                                                             | Minimum seconds between notifications                      |
+| `terminalWatch.shellPath`            | `""`                                                                            | Custom shell executable; blank auto-detects the OS default |
+| `terminalWatch.autoListeningEnabled` | `false`                                                                         | Start listening automatically when the extension activates |
 
----
+## Example use cases
 
-## 📋 Requirements
+| Workflow                                | Trigger pattern                      |
+| --------------------------------------- | ------------------------------------ |
+| Freebuff wrapping up a prompt           | `End session`                        |
+| Agent asking to accept edits            | `accept.{1,5}edits`                  |
+| Any agent printing a completion summary | `completed\|finished\|done\|success` |
+| Test suite finishing                    | `\d+ tests passed`                   |
+| Build / compile finishing               | `Build successful`                   |
+| Deployment finishing                    | `Deployment complete`                |
 
-- Requires VS Code version `1.125.0` or higher.
-- **Terminal Watch Notifier** extension (installed automatically when Terminal Watch is installed, or together via the Terminal Watch Pack). The notifier is a *UI* extension — it runs on your local machine, so desktop notifications reach your OS even when the monitored terminal lives in a container or remote host.
-- A terminal workflow that produces detectable stdout text.
+> 💡 Most AI agents print a final summary when a prompt finishes — set a trigger that matches that line (or the agent's exit banner) and you'll be notified the moment it appears.
 
-### 🐳 Using Terminal Watch in a Dev Container
+## How it's built
 
-Terminal Watch is a **workspace** extension, so it only runs where your workspace runs. In a Dev Container, that means **Terminal Watch must be installed *inside* the container** — installing it only on your local machine is not enough. Add it to your `devcontainer.json`:
+Two extensions split the work so notifications always appear on the machine you're sitting at:
 
-```json
-{
-  "customizations": {
-    "vscode": {
-      "extensions": ["BladeFin.terminal-watch"]
+| Extension                   | Runs on                                     | Job                                                   |
+| --------------------------- | ------------------------------------------- | ----------------------------------------------------- |
+| **Terminal Watch**          | workspace host (container / remote / local) | spawns the watched terminal, matches triggers         |
+| **Terminal Watch Notifier** | UI host (your machine)                      | raises the native OS notification via `node-notifier` |
+
+Terminal Watch reuses the PTY layer already inside VS Code: it loads the `node-pty` module bundled with the editor (`vscode.env.appRoot`) instead of shipping a native dependency, which keeps the extension tiny and platform-agnostic. That's an **unsupported internal mechanism** rather than a public API, so it can break on non-standard builds (Insiders, VSCodium, remote servers).
+
+## Compatibility
+
+- Requires VS Code `^1.125.0`.
+- Tested primarily on **Windows**. macOS and Linux should work — `node-pty` ships with VS Code on every platform — but haven't been thoroughly verified. Please report issues!
+- 🐳 **Dev containers**: Terminal Watch is a workspace extension, so it must be installed _inside_ the container — add it to your `devcontainer.json`:
+
+  ```json
+  {
+    "customizations": {
+      "vscode": { "extensions": ["BladeFin.terminal-watch"] }
     }
   }
-}
-```
+  ```
 
-The **Notifier** does *not* need to be added to the container. Because Terminal Watch lists it as a dependency (and it declares `"api": "none"`), VS Code installs and runs it automatically on your local machine — the same machine where your desktop notifications appear.
+  The Notifier stays on your local machine automatically — no container setup needed for it.
 
----
+- ⚠️ **Triggers match everything you type**: regexes run against _all_ terminal output, including echoed input — while you're actively typing in a watched terminal, your keystrokes can match early. Prefer patterns that match finished output, or rely on the cooldown.
 
-## ⚠️ Known Issues & Compatibility
+## Release notes
 
-- 📦 **Split Architecture**: Desktop notifications require the Terminal Watch Notifier extension (which runs on your local machine). If it is unavailable, Terminal Watch falls back to an in-editor notification so matches are never silently dropped.
-- 🐳 **Dev Containers & Remote**: Terminal Watch must be installed **inside** the container to run there — add `BladeFin.terminal-watch` to your `devcontainer.json` extensions (see the Requirements section above). The notifier is then installed automatically on your local UI host; nothing to do on your machine.
-- ⌨️ **Triggers While You're Typing**: Regexes are matched against *all* terminal output — including the text echoed back while you type. While you're actively interacting with a watched terminal, your input can match a trigger and fire a notification before your command actually finishes. Prefer patterns that match finished output, or rely on the notification cooldown to reduce noise.
-- ⚡ **Formatting Stripping**: Very complex terminal control sequences or ANSI art may occasionally obscure pattern matching.
-
----
-
-## 🗺️ Roadmap
-
-- 👆 Click notification to focus active terminal
-- 🎛️ Per-trigger notification preferences
-- 🚦 Smarter trigger detection — avoid firing while the terminal is actively being used
-- 🤖 Presets for popular AI coding agents (Claude Code, Codex, and others)
-- 📚 Expanded documentation and workflow examples
-
----
-
-## 📜 Release Notes
-
-### 0.0.3
-
-- Fixed activation in Dev Containers and remote workspaces (cross-host extension dependency via `"api": "none"`).
-- Better marketplace discoverability for CLI AI agents (Claude Code, Codex, Freebuff, and more).
-- Replaced placeholder default triggers with useful defaults.
-
-### 0.0.2
-
-- Split desktop notification handling into the new **Terminal Watch Notifier** UI extension so notifications work from containers and remote workspaces.
-- Terminal Watch now runs entirely in the workspace and delegates desktop notifications via a cross-extension command.
-
-### 1.0.0
-
-- Initial release of Terminal Watch.
-- Core regex terminal stdout monitoring.
-- Windows desktop and VS Code in-editor notifications.
-
----
-
-## 🤝 Contributing & Support
-
-Suggestions, bug reports, and feature requests are welcome!
-
-> _"You shouldn't have to watch a terminal window just to know when your work is finished."_ — Connor K.
-
----
-
-## 📄 License
-
-License: MIT
+See `CHANGELOG.md` in this repo. License: MIT — see `LICENSE`.

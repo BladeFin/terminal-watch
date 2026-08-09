@@ -1,9 +1,7 @@
-# Change Log
+# Changelog
 
-All notable changes to the "terminal-watch-pack" extension will be documented in this file.
+## [0.0.1] - 2026-08-08
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+Initial release.
 
-## [Unreleased]
-
-- Initial release
+- One-click install of Terminal Watch and Terminal Watch Notifier

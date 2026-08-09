@@ -3,7 +3,7 @@
   "displayName": "Terminal Watch",
   "publisher": "BladeFin",
   "description": "Monitors terminal output for regex patterns and alerts you when your commands finish — including CLI AI agents like Claude Code, Codex, and Freebuff. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "icon": "icon.png",
   "license": "MIT",
   "engines": {
@@ -64,9 +64,10 @@
             "type": "string"
           },
           "default": [
-            "End Session",
+            "End session",
             "Build successful",
-            "\\d+ tests passed"
+            "\\d+ tests passed",
+            "accept.{1,5}edits"
           ],
           "description": "Regular expressions that trigger a notification when detected in the terminal."
         },
@@ -102,14 +103,17 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "test:unit": "npm run compile && mocha out/test/core.test.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.13.3",
     "@types/vscode": "^1.125.0",
     "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0",
     "eslint": "^10.5.0",
+    "mocha": "^11.8.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
   },

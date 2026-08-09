@@ -3,20 +3,7 @@
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
-      ]
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
     }
-  },
-  // Fixes terminal identification flags
-  "containerEnv": {
-    "LANG": "en_US.UTF-8",
-    "LANGUAGE": "en_US:en",
-    "LC_ALL": "en_US.UTF-8",
-    "TZ": "America/Chicago"
-  },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y locales && sudo locale-gen en_US.UTF-8 && npm install -g freebuff",
-  "forwardPorts": [3000]
+  }
 }

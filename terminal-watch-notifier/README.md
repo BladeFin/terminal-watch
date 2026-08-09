@@ -60,18 +60,9 @@ This split guarantees desktop notifications are raised on the machine you are ac
 
 ---
 
-## 📜 Release Notes
+## 📜 Release notes
 
-### 0.0.2
-
-- Declared `"api": "none"` so Terminal Watch can activate in Dev Containers and remote workspaces while this extension keeps running on your local UI host.
-- Added AI-agent keywords and descriptions for marketplace discoverability.
-
-### 0.0.1
-
-- Initial release of Terminal Watch Notifier.
-- Native desktop notifications via node-notifier.
-- Split from Terminal Watch so notifications work from containers and remote workspaces.
+See `CHANGELOG.md` in this repo.
 
 ---
 

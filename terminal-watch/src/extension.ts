@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 import { desktopNotify } from "./notifications";
+import { compileTriggers, scanOutput, type TriggerState } from "./core";
 
 interface IPty {
   pid: number;
@@ -27,24 +29,6 @@ interface PtyModule {
   ): IPty;
 }
 
-declare const __webpack_require__: unknown;
-declare const __non_webpack_require__: NodeRequire;
-
-const ANSI_REGEX =
-  /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
-
-function supportsShellIntegration(shellPath: string): boolean {
-  const base = shellPath.split(/[\\/]/).pop()?.toLowerCase() ?? "";
-  return [
-    "pwsh.exe",
-    "powershell.exe",
-    "bash",
-    "zsh",
-    "fish",
-    "bash.exe",
-  ].includes(base);
-}
-
 function defaultShellPath(): string {
   return process.platform === "win32"
     ? process.env.ComSpec || "cmd.exe"
@@ -68,7 +52,6 @@ function getAvailableShells(configuredPath: string): ShellChoice[] {
     },
   ];
 
-  // Candidates across Windows, Linux, macOS, and Containers
   const candidates = [
     // Linux / Containers / macOS
     { label: "$(terminal-bash) Bash", path: "/bin/bash" },
@@ -97,168 +80,106 @@ function getAvailableShells(configuredPath: string): ShellChoice[] {
         description: cand.path,
         shellPath: cand.path,
       });
-    } else {
-      if (cand.path.startsWith("/") && fs.existsSync(cand.path)) {
-        choices.push({
-          label: cand.label,
-          description: cand.path,
-          shellPath: cand.path,
-        });
-      }
+    } else if (cand.path.startsWith("/") && fs.existsSync(cand.path)) {
+      choices.push({
+        label: cand.label,
+        description: cand.path,
+        shellPath: cand.path,
+      });
     }
   }
 
   return choices;
 }
 
+// VS Code bundles node-pty inside its own install; we load that copy instead
+// of shipping a native dependency. Internal mechanism, not a supported API.
+function loadBundledPty(): PtyModule | undefined {
+  const searchPaths = [
+    path.join(vscode.env.appRoot, "node_modules.asar", "node-pty"),
+    path.join(vscode.env.appRoot, "node_modules", "node-pty"),
+  ];
+
+  for (const ptyPath of searchPaths) {
+    try {
+      return require(ptyPath) as PtyModule;
+    } catch {
+      // try the next candidate
+    }
+  }
+
+  return undefined;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration("terminalWatch");
 
-  let notificationMode = config.get<string>("notificationMode", "Both");
-  let triggers = compileRegexes(config.get<string[]>("triggers", []));
-  let cooldownSeconds = config.get<number>("cooldownSeconds", 5);
-  let shellPath = resolveConfiguredShell(config);
+  let triggers: RegExp[] = [];
+  let notificationMode = "Both";
+  let cooldownSeconds = 5;
+  let shellPath = defaultShellPath();
+  // Initialized from autoListeningEnabled at activation, then controlled by
+  // the user via the status bar menu (deliberately not reloaded on config
+  // changes, which would clobber manual toggles).
   let listening = config.get<boolean>("autoListeningEnabled", false);
+
+  function reloadConfig() {
+    const config = vscode.workspace.getConfiguration("terminalWatch");
+
+    const compiled = compileTriggers(config.get<string[]>("triggers", []));
+    triggers = compiled.triggers;
+    for (const pattern of compiled.invalid) {
+      vscode.window.showWarningMessage(`Invalid regex: ${pattern}`);
+    }
+
+    notificationMode = config.get<string>("notificationMode", "Both");
+    cooldownSeconds = config.get<number>("cooldownSeconds", 5);
+    shellPath = resolveConfiguredShell(config);
+  }
+
+  reloadConfig();
 
   const configListener = vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration("terminalWatch")) {
-      const config = vscode.workspace.getConfiguration("terminalWatch");
-
-      triggers = compileRegexes(config.get<string[]>("triggers", []));
-      notificationMode = config.get<string>("notificationMode", "Both");
-      cooldownSeconds = config.get<number>("cooldownSeconds", 5);
-      shellPath = resolveConfiguredShell(config);
-
-      // `listening` is intentionally NOT reloaded here: it is initialized from
-      // autoListeningEnabled at activation, then controlled by the user via the
-      // status bar menu. Reloading it would clobber manual toggles.
+      reloadConfig();
     }
   });
 
-  context.subscriptions.push(configListener);
-
-  const statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100,
-  );
-  statusBarItem.command = "terminal-watch.openMenu";
-  statusBarItem.text = "$(terminal) Terminal Watch";
-
-  const stateByTerminal = new WeakMap<
-    vscode.Terminal,
-    { buffer: string; lastTriggerTime: number }
-  >();
-
-  function checkOutput(terminal: vscode.Terminal, data: string) {
+  function checkOutput(state: TriggerState, data: string) {
     if (!listening) {
       return;
     }
 
-    const state = stateByTerminal.get(terminal) ?? {
-      buffer: "",
-      lastTriggerTime: 0,
-    };
-    stateByTerminal.set(terminal, state);
-
-    const cleanData = data.replace(ANSI_REGEX, "");
-    state.buffer = (state.buffer + cleanData).slice(-1000);
-
-    const matchedRegex = triggers.find((regex) => {
-      regex.lastIndex = 0;
-      return regex.test(state.buffer);
-    });
-
-    if (!matchedRegex) {
+    const match = scanOutput(state, data, triggers, cooldownSeconds * 1000);
+    if (!match) {
       return;
     }
-
-    const now = Date.now();
-    if (now - state.lastTriggerTime <= cooldownSeconds * 1000) {
-      return;
-    }
-
-    state.lastTriggerTime = now;
-    state.buffer = "";
 
     if (notificationMode === "VS Code" || notificationMode === "Both") {
       vscode.window.showInformationMessage(
-        `Terminal Watch: Detected "${matchedRegex.source}"`,
+        `Terminal Watch: Detected "${match}"`,
       );
     }
     if (notificationMode === "Desktop" || notificationMode === "Both") {
-      desktopNotify("Terminal Watch", `Detected "${matchedRegex.source}"`);
+      desktopNotify("Terminal Watch", `Detected "${match}"`);
     }
   }
 
-  const watchedTerminals = new Set<vscode.Terminal>();
-
-  function createShellIntegrationWatchedTerminal(path: string) {
-    const terminal = vscode.window.createTerminal({
-      name: "Watched Terminal",
-      shellPath: path,
-    });
-    watchedTerminals.add(terminal);
-    stateByTerminal.set(terminal, { buffer: "", lastTriggerTime: 0 });
-    terminal.show(false);
-    vscode.commands.executeCommand("workbench.action.terminal.focus");
-  }
-
-  const startListener = vscode.window.onDidStartTerminalShellExecution(
-    async (event) => {
-      const { terminal, execution } = event;
-      if (!watchedTerminals.has(terminal) || !listening) {
-        return;
-      }
-      const stream = execution.read();
-      for await (const data of stream) {
-        if (!listening) {
-          break;
-        }
-        checkOutput(terminal, data);
-      }
-    },
-  );
-  context.subscriptions.push(startListener);
-
-  function loadBundledPty(): PtyModule | undefined {
-    const requireFunc =
-      typeof __webpack_require__ === "function"
-        ? __non_webpack_require__
-        : require;
-
-    const path = require("path");
-
-    const searchPaths = [
-      path.join(vscode.env.appRoot, "node_modules.asar", "node-pty"),
-      path.join(vscode.env.appRoot, "node_modules", "node-pty"),
-    ];
-
-    for (const ptyPath of searchPaths) {
-      try {
-        const bundled = requireFunc(ptyPath);
-        return bundled;
-      } catch (err) {
-        // Silently fail and continue to next path
-      }
-    }
-
-    return undefined;
-  }
-
-  function createPtyWatchedTerminal(path: string, pty: PtyModule) {
+  function spawnWatchedTerminal(shell: string, pty: PtyModule) {
     if (
       process.platform !== "win32" &&
-      path.startsWith("/") &&
-      !fs.existsSync(path)
+      shell.startsWith("/") &&
+      !fs.existsSync(shell)
     ) {
-      const msg = `[terminal-watch] Cannot launch: Shell executable "${path}" does not exist on this system.`;
-      vscode.window.showErrorMessage(msg);
+      vscode.window.showErrorMessage(
+        `[terminal-watch] Cannot launch: Shell executable "${shell}" does not exist on this system.`,
+      );
       return;
     }
 
-    let initialPty: IPty;
+    let shellProcess: IPty;
     try {
-      initialPty = pty.spawn(path, [], {
+      shellProcess = pty.spawn(shell, [], {
         name: "xterm-color",
         cols: 80,
         rows: 30,
@@ -266,30 +187,28 @@ export function activate(context: vscode.ExtensionContext) {
         env: process.env as { [key: string]: string },
       });
     } catch (err) {
-      const msg = `[terminal-watch] Failed to spawn watched terminal for "${path}": ${err}`;
-      vscode.window.showErrorMessage(msg);
+      vscode.window.showErrorMessage(
+        `[terminal-watch] Failed to spawn watched terminal for "${shell}": ${err}`,
+      );
       return;
     }
 
     const writeEmitter = new vscode.EventEmitter<string>();
-    let shellProcess: IPty | undefined = initialPty;
-    let terminalRef: vscode.Terminal;
+    const state: TriggerState = { buffer: "", lastTriggerTime: 0 };
     let isExited = false;
 
-    const state = { buffer: "", lastTriggerTime: 0 };
-
     const pseudoterminal: vscode.Pseudoterminal = {
-      // Add the missing onDidWrite property here
       onDidWrite: writeEmitter.event,
+
       open: (initialDimensions) => {
-        if (initialDimensions && shellProcess) {
+        if (initialDimensions) {
           try {
             shellProcess.resize(
               initialDimensions.columns,
               initialDimensions.rows,
             );
           } catch {
-            // Ignore initial resize error if process exits fast
+            // Process may have exited before the first resize
           }
         }
 
@@ -298,12 +217,12 @@ export function activate(context: vscode.ExtensionContext) {
             listening
               ? "Active monitoring enabled"
               : "Monitoring paused (listening is OFF)"
-          } on "${path}" (pid ${shellProcess.pid})\x1b[0m\r\n`,
+          } on "${shell}" (pid ${shellProcess.pid})\x1b[0m\r\n`,
         );
 
         shellProcess.onData((data) => {
           writeEmitter.fire(data);
-          checkOutput(terminalRef, data);
+          checkOutput(state, data);
         });
 
         shellProcess.onExit(({ exitCode, signal }) => {
@@ -315,19 +234,22 @@ export function activate(context: vscode.ExtensionContext) {
           );
         });
       },
+
       close: () => {
         if (!isExited) {
           isExited = true;
-          shellProcess?.kill();
+          shellProcess.kill();
         }
       },
+
       handleInput: (data) => {
         if (!isExited) {
-          shellProcess?.write(data);
+          shellProcess.write(data);
         }
       },
+
       setDimensions: (dimensions) => {
-        if (!isExited && shellProcess) {
+        if (!isExited) {
           try {
             shellProcess.resize(dimensions.columns, dimensions.rows);
           } catch (err) {
@@ -337,26 +259,23 @@ export function activate(context: vscode.ExtensionContext) {
       },
     };
 
-    terminalRef = vscode.window.createTerminal({
+    const terminal = vscode.window.createTerminal({
       name: "Watched Terminal",
       pty: pseudoterminal,
     });
-    stateByTerminal.set(terminalRef, state);
-    terminalRef.show(false);
+    terminal.show(false);
     vscode.commands.executeCommand("workbench.action.terminal.focus");
   }
 
-  function startWatchedTerminal(path: string) {
+  function startWatchedTerminal(shell: string) {
     const pty = loadBundledPty();
-
     if (!pty) {
       vscode.window.showErrorMessage(
         "Terminal Watch: Cannot initialize monitoring engine. VS Code's node-pty module could not be loaded.",
       );
       return;
     }
-
-    createPtyWatchedTerminal(path, pty);
+    spawnWatchedTerminal(shell, pty);
   }
 
   async function createWatchedTerminal() {
@@ -366,24 +285,23 @@ export function activate(context: vscode.ExtensionContext) {
         placeHolder: "Choose a shell to watch",
       },
     );
-    if (!picked) {
-      return;
+    if (picked) {
+      startWatchedTerminal(picked.shellPath);
     }
-    startWatchedTerminal(picked.shellPath);
   }
 
-  interface TerminalWatchMenuItem extends vscode.QuickPickItem {
+  interface MenuItem extends vscode.QuickPickItem {
     action: "toggle-listening" | "create-terminal";
   }
 
   function updateStatusBar() {
-    statusBarItem.tooltip = listening
-      ? "Listening is ON \u2014 click to toggle listening or create a watched terminal."
-      : "Listening is OFF \u2014 click to toggle listening or create a watched terminal.";
+    statusBarItem.tooltip = `Listening is ${
+      listening ? "ON" : "OFF"
+    } — click to toggle listening or create a watched terminal.`;
   }
 
   async function openMenu() {
-    const toggleItem: TerminalWatchMenuItem = listening
+    const toggleItem: MenuItem = listening
       ? {
           action: "toggle-listening",
           label: "$(check) Listening: ON",
@@ -395,19 +313,18 @@ export function activate(context: vscode.ExtensionContext) {
           description: "Click to turn listening on",
         };
 
-    const createItem: TerminalWatchMenuItem = {
+    const createItem: MenuItem = {
       action: "create-terminal",
       label: "$(terminal) New Watched Terminal",
       description: "Choose a shell and launch a watched terminal",
     };
 
-    const picked = await vscode.window.showQuickPick<TerminalWatchMenuItem>(
+    const picked = await vscode.window.showQuickPick<MenuItem>(
       [toggleItem, createItem],
       {
         placeHolder: "Terminal Watch",
       },
     );
-
     if (!picked) {
       return;
     }
@@ -422,40 +339,25 @@ export function activate(context: vscode.ExtensionContext) {
     await createWatchedTerminal();
   }
 
-  const createCommandDisposable = vscode.commands.registerCommand(
-    "terminal-watch.createWatchedTerminal",
-    createWatchedTerminal,
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
   );
-
-  const openMenuCommandDisposable = vscode.commands.registerCommand(
-    "terminal-watch.openMenu",
-    openMenu,
-  );
-
-  const closeListener = vscode.window.onDidCloseTerminal((closedTerminal) => {
-    watchedTerminals.delete(closedTerminal);
-  });
-
-  context.subscriptions.push(
-    closeListener,
-    createCommandDisposable,
-    openMenuCommandDisposable,
-  );
+  statusBarItem.command = "terminal-watch.openMenu";
+  statusBarItem.text = "$(terminal) Terminal Watch";
 
   updateStatusBar();
   statusBarItem.show();
-  context.subscriptions.push(statusBarItem);
+
+  context.subscriptions.push(
+    configListener,
+    statusBarItem,
+    vscode.commands.registerCommand(
+      "terminal-watch.createWatchedTerminal",
+      createWatchedTerminal,
+    ),
+    vscode.commands.registerCommand("terminal-watch.openMenu", openMenu),
+  );
 }
 
 export function deactivate() {}
-
-function compileRegexes(patterns: string[]): RegExp[] {
-  return patterns.flatMap((pattern) => {
-    try {
-      return [new RegExp(pattern)];
-    } catch {
-      vscode.window.showWarningMessage(`Invalid regex: ${pattern}`);
-      return [];
-    }
-  });
-}

@@ -1,14 +1,9 @@
-# Change Log
+# Changelog
 
-All notable changes to the "terminal-watch-notifier" extension will be documented in this file.
+## [0.0.2] - 2026-08-08
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+First release of Terminal Watch Notifier.
 
-## [0.0.2] - 2026-08-06
-
-- Declared `"api": "none"`. VS Code only supports `extensionDependencies` across extension hosts (e.g. Terminal Watch running in a Dev Container) when the providing extension exports no API. The notifier never exported one, so this is behavior-neutral for existing users.
-- Added AI-agent keywords and descriptions for marketplace discoverability.
-
-## [Unreleased]
-
-- Initial release
+- Raises native OS desktop notifications with `node-notifier`
+- Runs on the UI host, so notifications reach your desktop even when Terminal Watch runs in a container, over SSH, or in WSL
+- Declares `"api": "none"` so Terminal Watch can depend on it across extension hosts

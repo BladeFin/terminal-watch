@@ -55,6 +55,18 @@ The Notifier is a UI extension: it stays on your local machine and is pulled in 
 2. Click **Terminal Watch** in the bottom-right status bar — a menu opens where you can toggle **Listening** on/off or launch a **New Watched Terminal** (or run `Terminal Watch: Open Menu` / `Terminal Watch: Create Watched Terminal` from the Command Palette).
 3. Make sure **Listening** is **ON** (it starts OFF by default), pick a shell, run your command — a long build, a test suite, or a CLI AI agent like Claude Code, Codex, or Freebuff — and step away. You'll be notified when your regex triggers match.
 
+**Prefer the keyboard?** Bind the commands in `keybindings.json` (`terminal-watch.createWatchedTerminal`, `terminal-watch.openMenu`).
+
+---
+
+## ⚠️ Compatibility
+
+- Requires VS Code `^1.125.0`.
+- Tested primarily on **Windows**; macOS and Linux should work but aren't thoroughly verified yet.
+- Terminal Watch relies on VS Code's bundled `node-pty` module — an **unsupported internal mechanism** that can break on non-standard builds (Insiders, VSCodium, remote servers).
+
+See the [Terminal Watch](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch) page for full details.
+
 ---
 
 ## 📄 License
