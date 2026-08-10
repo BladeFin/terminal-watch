@@ -2,8 +2,8 @@
 
 Watches your terminal so you don't have to.
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/BladeFin.terminal-watch?label=VS%20Marketplace&color=4B8BBE)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/BladeFin.terminal-watch?label=installs&color=4B8BBE)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
+[![Version](https://vsmarketplacebadges.dev/version-short/BladeFin.terminal-watch.svg)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
+[![Installs](https://vsmarketplacebadges.dev/installs/BladeFin.terminal-watch.svg)](https://marketplace.visualstudio.com/items?itemName=BladeFin.terminal-watch)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](terminal-watch/LICENSE)
 
 Terminal Watch pings you the moment your terminal output matches a regex — so you can kick off a long build, a test suite, a deployment, or a CLI AI agent and walk away. No more babysitting the terminal.

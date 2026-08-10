@@ -8,7 +8,7 @@
     "directory": "terminal-watch-notifier"
   },
   "description": "Companion to Terminal Watch: raises native OS desktop notifications via node-notifier when your command — or CLI AI agent — finishes. Runs on the UI host so notifications work even when Terminal Watch runs in a container or remote workspace.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "icon.png",
   "license": "MIT",
   "api": "none",
@@ -40,7 +40,7 @@
   ],
   "scripts": {
     "vscode:prepublish": "npm run bundle",
-    "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --platform=node --format=cjs --external:vscode",
+    "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --platform=node --format=cjs --external:vscode && node scripts/copy-vendor.mjs",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
