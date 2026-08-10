@@ -2,8 +2,13 @@
   "name": "terminal-watch-notifier",
   "displayName": "Terminal Watch Notifier",
   "publisher": "BladeFin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BladeFin/terminal-watch.git",
+    "directory": "terminal-watch-notifier"
+  },
   "description": "Companion to Terminal Watch: raises native OS desktop notifications via node-notifier when your command — or CLI AI agent — finishes. Runs on the UI host so notifications work even when Terminal Watch runs in a container or remote workspace.",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "icon": "icon.png",
   "license": "MIT",
   "api": "none",

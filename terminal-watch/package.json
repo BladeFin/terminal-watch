@@ -2,8 +2,13 @@
   "name": "terminal-watch",
   "displayName": "Terminal Watch",
   "publisher": "BladeFin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BladeFin/terminal-watch.git",
+    "directory": "terminal-watch"
+  },
   "description": "Monitors terminal output for regex patterns and alerts you when your commands finish — including CLI AI agents like Claude Code, Codex, and Freebuff. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "icon": "icon.png",
   "license": "MIT",
   "engines": {
