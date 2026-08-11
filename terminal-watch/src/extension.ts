@@ -117,6 +117,12 @@ export function activate(context: vscode.ExtensionContext) {
   let triggers: RegExp[] = [];
   let notificationMode = "Both";
   let cooldownSeconds = 5;
+  // Silence while focused: only notify when this VS Code window is not the
+  // focused window (the user switched to another app).
+  let silenceWhileFocused = false;
+  // Require user input: only notify when the user has typed in the watched
+  // terminal since the last notification, so repeated triggers can't spam.
+  let requireUserInput = true;
   let shellPath = defaultShellPath();
   // Initialized from autoListeningEnabled at activation, then controlled by
   // the user via the status bar menu (deliberately not reloaded on config
@@ -134,6 +140,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     notificationMode = config.get<string>("notificationMode", "Both");
     cooldownSeconds = config.get<number>("cooldownSeconds", 5);
+    silenceWhileFocused = config.get<boolean>("silenceWhileFocused", false);
+    requireUserInput = config.get<boolean>("requireUserInput", true);
     shellPath = resolveConfiguredShell(config);
   }
 
@@ -150,10 +158,24 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    const match = scanOutput(state, data, triggers, cooldownSeconds * 1000);
+    const match = scanOutput(state, data, triggers, {
+      cooldownMs: cooldownSeconds * 1000,
+      requireUserInput,
+    });
     if (!match) {
       return;
     }
+
+    // The match is already consumed; if this window is focused the user can
+    // see the terminal themselves, so stay silent until they switch away.
+    if (silenceWhileFocused && vscode.window.state.focused) {
+      return;
+    }
+
+    // Close the input gate only when a notification actually sends, so a
+    // match suppressed by silenceWhileFocused doesn't reset it (otherwise
+    // the user would get nothing after switching away).
+    state.userTyped = false;
 
     if (notificationMode === "VS Code" || notificationMode === "Both") {
       vscode.window.showInformationMessage(
@@ -194,7 +216,13 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     const writeEmitter = new vscode.EventEmitter<string>();
-    const state: TriggerState = { buffer: "", lastTriggerTime: 0 };
+    // userTyped starts true so the first trigger of a fresh terminal notifies;
+    // afterwards it only re-opens when the user types in this terminal.
+    const state: TriggerState = {
+      buffer: "",
+      lastTriggerTime: 0,
+      userTyped: true,
+    };
     let isExited = false;
 
     const pseudoterminal: vscode.Pseudoterminal = {
@@ -244,6 +272,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       handleInput: (data) => {
         if (!isExited) {
+          state.userTyped = true;
           shellProcess.write(data);
         }
       },

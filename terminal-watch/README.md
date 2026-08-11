@@ -19,6 +19,7 @@ _Created by **Connor K**._
 - 🔔 **Desktop + in-editor notifications** when a command finishes
 - ⚙️ **Custom regex triggers** with a cooldown to cut the noise
 - 🔕 **Listening toggle** — nothing is scanned while it's off
+- 🧠 **Anti-spam gating** — optional focus-silence and "require input" modes
 - 🖥️ **Container & remote friendly** — notifications still land on your desktop
 - 🤖 **CLI AI agent ready** — set a trigger for the agent's "done" banner and walk away
 
@@ -53,13 +54,22 @@ Output is matched against your configured regexes (ANSI codes stripped). Default
 
 ## Settings
 
-| Setting                              | Default                                                                         | Purpose                                                    |
-| ------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `terminalWatch.triggers`             | `["End session", "Build successful", "accept.{1,5}edits", "\\d+ tests passed"]` | Regexes that fire a notification                           |
-| `terminalWatch.notificationMode`     | `"Both"`                                                                        | Where notifications go: `Desktop`, `VS Code`, or `Both`    |
-| `terminalWatch.cooldownSeconds`      | `5`                                                                             | Minimum seconds between notifications                      |
-| `terminalWatch.shellPath`            | `""`                                                                            | Custom shell executable; blank auto-detects the OS default |
-| `terminalWatch.autoListeningEnabled` | `false`                                                                         | Start listening automatically when the extension activates |
+| Setting                                | Default                                                                         | Purpose                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `terminalWatch.triggers`               | `["End session", "Build successful", "accept.{1,5}edits", "\\d+ tests passed"]` | Regexes that fire a notification                                                     |
+| `terminalWatch.notificationMode`       | `"Both"`                                                                        | Where notifications go: `Desktop`, `VS Code`, or `Both`                              |
+| `terminalWatch.cooldownSeconds`        | `5`                                                                             | Minimum seconds between notifications                                                |
+| `terminalWatch.silenceWhileFocused`    | `false`                                                                         | Only notify while this window is unfocused (you switched to another app)             |
+| `terminalWatch.requireUserInput`       | `true`                                                                          | Only notify after you've typed in the watched terminal since the last notification   |
+| `terminalWatch.shellPath`              | `""`                                                                            | Custom shell executable; blank auto-detects the OS default                           |
+| `terminalWatch.autoListeningEnabled`   | `false`                                                                         | Start listening automatically when the extension activates                           |
+
+### Anti-spam gating
+
+Two optional guards keep notifications useful instead of noisy:
+
+- **`silenceWhileFocused`** (default `false`) — while this VS Code window has focus you can see the terminal yourself, so matching triggers are silently consumed. Notifications only fire once you've switched to another app (Chrome, your editor elsewhere, …). Works in containers and remote workspaces too.
+- **`requireUserInput`** (default `true`) — a notification only fires if you've typed in the watched terminal since the last one. A long-running command or AI agent that keeps printing triggers won't spam you while you're idle; type back to it and notifications resume. A trigger suppressed this way is consumed, so stale output never fires later — a fresh trigger detection is required.
 
 ## Example use cases
 

@@ -8,7 +8,7 @@
     "directory": "terminal-watch"
   },
   "description": "Monitors terminal output for regex patterns and alerts you when your commands finish — including CLI AI agents like Claude Code, Codex, and Freebuff. Desktop notifications are delivered by the Terminal Watch Notifier extension.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "icon": "icon.png",
   "license": "MIT",
   "engines": {
@@ -80,6 +80,16 @@
           "type": "number",
           "default": 5,
           "description": "Minimum seconds between notifications."
+        },
+        "terminalWatch.silenceWhileFocused": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only send notifications while this VS Code window is not focused (e.g. you switched to another app). While the window has focus you can see the terminal yourself, so matching triggers are silently consumed."
+        },
+        "terminalWatch.requireUserInput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Only send a notification if you have typed in the watched terminal since the last one. Repeated triggers while a long-running command runs unattended are suppressed, which stops notification spam."
         },
         "terminalWatch.shellPath": {
           "type": "string",
